@@ -1,9 +1,9 @@
 import { AuthProvider } from "@/components/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
-import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import type React from "react";
+import "@/styles/globals.css";
 import PWARegister from "./pwa";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   ],
   generator: "Alhifny Wahid - https://github.com/alhifnywahid",
   icons: {
-    icon: "/icons/icon-512x512.png",
+    icon: "/favicon.png",
   },
 };
 
