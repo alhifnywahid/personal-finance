@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { signInWithPopup } from "firebase/auth"
 import { auth, googleProvider } from "@/lib/firebase"
@@ -15,9 +15,11 @@ export default function LoginPage() {
   const { user } = useAuth()
   const router = useRouter()
 
-  if (user) {
-    router.push("/dashboard")
-  }
+  useEffect(() => {
+    if (user) {
+      router.push("/dashboard")
+    }
+  }, [user, router])
 
   const handleGoogleSignIn = async () => {
     try {
