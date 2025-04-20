@@ -1,28 +1,14 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { collection, query, where, getDocs, orderBy, addDoc, updateDoc, doc, deleteDoc } from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import { formatCurrency, formatDate } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useToast } from "@/hooks/use-toast"
-import AuthCheck from "@/components/auth-check"
-import MobileContainer from "@/components/mobile-container"
-import BottomNav from "@/components/bottom-nav"
-import type { DebtCredit } from "@/types"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { CalendarIcon, Check, Edit, Loader2, Plus } from "lucide-react"
-import { format } from "date-fns"
-import { id } from "date-fns/locale"
-import { useAuth } from "@/components/auth-provider"
+import AuthCheck from "@/components/auth-check";
+import { useAuth } from "@/components/auth-provider";
+import BottomNav from "@/components/bottom-nav";
+import MobileContainer from "@/components/mobile-container";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Drawer,
   DrawerClose,
@@ -32,18 +18,52 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@/components/ui/drawer"
+} from "@/components/ui/drawer";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { db } from "@/lib/firebase";
+import { formatCurrency, formatDate } from "@/lib/utils";
+import type { DebtCredit } from "@/types";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  orderBy,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
+import { CalendarIcon, Check, Edit, Loader2, Plus } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function DebtCreditPage() {
-  const { user } = useAuth()
-  const { toast } = useToast()
-  const [activeTab, setActiveTab] = useState("debt")
-  const [isLoading, setIsLoading] = useState(true)
-  const [records, setRecords] = useState<DebtCredit[]>([])
-  const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false)
-  const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false)
-  const [isDeleteDrawerOpen, setIsDeleteDrawerOpen] = useState(false)
-  const [isPayDrawerOpen, setIsPayDrawerOpen] = useState(false)
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState("debt");
+  const [isLoading, setIsLoading] = useState(true);
+  const [records, setRecords] = useState<DebtCredit[]>([]);
+  const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
+  const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
+  const [isDeleteDrawerOpen, setIsDeleteDrawerOpen] = useState(false);
+  const [isPayDrawerOpen, setIsPayDrawerOpen] = useState(false);
   const [newRecord, setNewRecord] = useState({
     amount: "",
     description: "",
@@ -51,90 +71,92 @@ export default function DebtCreditPage() {
     date: new Date(),
     dueDate: new Date(),
     type: "debt",
-  })
-  const [editingRecord, setEditingRecord] = useState<DebtCredit | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [recordToDelete, setRecordToDelete] = useState<string | null>(null)
-  const [recordToPay, setRecordToPay] = useState<string | null>(null)
+  });
+  const [editingRecord, setEditingRecord] = useState<DebtCredit | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [recordToDelete, setRecordToDelete] = useState<string | null>(null);
+  const [recordToPay, setRecordToPay] = useState<string | null>(null);
 
   const fetchRecords = async () => {
-    if (!user?.uid) return
+    if (!user?.uid) return;
 
     try {
-      setIsLoading(true)
-      const userId = user.uid
+      setIsLoading(true);
+      const userId = user.uid;
 
       const recordsQuery = query(
         collection(db, "debtCredit"),
         where("userId", "==", userId),
         where("type", "==", activeTab),
-        orderBy("date", "desc"),
-      )
-      const snapshot = await getDocs(recordsQuery)
+        orderBy("date", "desc")
+      );
+      const snapshot = await getDocs(recordsQuery);
       const recordsData = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      })) as DebtCredit[]
+      })) as DebtCredit[];
 
-      setRecords(recordsData)
+      setRecords(recordsData);
     } catch (error) {
-      console.error("Error fetching records:", error)
+      console.error("Error fetching records:", error);
       toast({
         title: "Error",
-        description: `Gagal memuat data ${activeTab === "debt" ? "hutang" : "piutang"}`,
+        description: `Gagal memuat data ${
+          activeTab === "debt" ? "hutang" : "piutang"
+        }`,
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     if (user?.uid) {
-      fetchRecords()
+      fetchRecords();
     }
-  }, [user, activeTab])
+  }, [user, activeTab]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setNewRecord((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setNewRecord((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setEditingRecord((prev) => (prev ? { ...prev, [name]: value } : null))
-  }
+    const { name, value } = e.target;
+    setEditingRecord((prev) => (prev ? { ...prev, [name]: value } : null));
+  };
 
   const handleTabChange = (value: string) => {
-    setActiveTab(value)
-    setNewRecord((prev) => ({ ...prev, type: value }))
-  }
+    setActiveTab(value);
+    setNewRecord((prev) => ({ ...prev, type: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!user?.uid) return
+    if (!user?.uid) return;
 
     if (!newRecord.amount || !newRecord.description || !newRecord.person) {
       toast({
         title: "Error",
         description: "Semua field harus diisi",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
     try {
-      setIsSubmitting(true)
+      setIsSubmitting(true);
 
-      const amount = Number.parseFloat(newRecord.amount)
+      const amount = Number.parseFloat(newRecord.amount);
       if (isNaN(amount) || amount <= 0) {
         toast({
           title: "Error",
           description: "Jumlah harus berupa angka positif",
           variant: "destructive",
-        })
-        return
+        });
+        return;
       }
 
       await addDoc(collection(db, "debtCredit"), {
@@ -146,7 +168,7 @@ export default function DebtCreditPage() {
         type: newRecord.type,
         status: "pending",
         userId: user.uid,
-      })
+      });
 
       setNewRecord({
         amount: "",
@@ -155,57 +177,65 @@ export default function DebtCreditPage() {
         date: new Date(),
         dueDate: new Date(),
         type: activeTab,
-      })
+      });
 
-      setIsAddDrawerOpen(false)
-      fetchRecords()
+      setIsAddDrawerOpen(false);
+      fetchRecords();
 
       toast({
         title: "Sukses",
-        description: `${activeTab === "debt" ? "Hutang" : "Piutang"} berhasil ditambahkan`,
-      })
+        description: `${
+          activeTab === "debt" ? "Hutang" : "Piutang"
+        } berhasil ditambahkan`,
+      });
     } catch (error) {
-      console.error("Error adding record:", error)
+      console.error("Error adding record:", error);
       toast({
         title: "Error",
-        description: `Gagal menambahkan ${activeTab === "debt" ? "hutang" : "piutang"}`,
+        description: `Gagal menambahkan ${
+          activeTab === "debt" ? "hutang" : "piutang"
+        }`,
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleEdit = (record: DebtCredit) => {
-    setEditingRecord(record)
-    setIsEditDrawerOpen(true)
-  }
+    setEditingRecord(record);
+    setIsEditDrawerOpen(true);
+  };
 
   const handleUpdate = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!user?.uid || !editingRecord) return
+    if (!user?.uid || !editingRecord) return;
 
-    if (!editingRecord.amount || !editingRecord.description || !editingRecord.person) {
+    if (
+      !editingRecord.amount ||
+      !editingRecord.description ||
+      !editingRecord.person
+    ) {
       toast({
         title: "Error",
         description: "Semua field harus diisi",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
     try {
-      setIsSubmitting(true)
+      setIsSubmitting(true);
 
-      const amount = Number(editingRecord.amount)
+      const amount = Number(editingRecord.amount);
       if (isNaN(amount) || amount <= 0) {
         toast({
           title: "Error",
           description: "Jumlah harus berupa angka positif",
           variant: "destructive",
-        })
-        return
+        });
+        return;
       }
 
       await updateDoc(doc(db, "debtCredit", editingRecord.id), {
@@ -213,87 +243,99 @@ export default function DebtCreditPage() {
         description: editingRecord.description,
         person: editingRecord.person,
         dueDate: editingRecord.dueDate,
-      })
+      });
 
-      setIsEditDrawerOpen(false)
-      fetchRecords()
+      setIsEditDrawerOpen(false);
+      fetchRecords();
 
       toast({
         title: "Sukses",
-        description: `${activeTab === "debt" ? "Hutang" : "Piutang"} berhasil diperbarui`,
-      })
+        description: `${
+          activeTab === "debt" ? "Hutang" : "Piutang"
+        } berhasil diperbarui`,
+      });
     } catch (error) {
-      console.error("Error updating record:", error)
+      console.error("Error updating record:", error);
       toast({
         title: "Error",
-        description: `Gagal memperbarui ${activeTab === "debt" ? "hutang" : "piutang"}`,
+        description: `Gagal memperbarui ${
+          activeTab === "debt" ? "hutang" : "piutang"
+        }`,
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const confirmDelete = (id: string) => {
-    setRecordToDelete(id)
-    setIsDeleteDrawerOpen(true)
-  }
+    setRecordToDelete(id);
+    setIsDeleteDrawerOpen(true);
+  };
 
   const handleDelete = async () => {
-    if (!user?.uid || !recordToDelete) return
+    if (!user?.uid || !recordToDelete) return;
 
     try {
-      await deleteDoc(doc(db, "debtCredit", recordToDelete))
-      fetchRecords()
+      await deleteDoc(doc(db, "debtCredit", recordToDelete));
+      fetchRecords();
 
       toast({
         title: "Sukses",
-        description: `${activeTab === "debt" ? "Hutang" : "Piutang"} berhasil dihapus`,
-      })
+        description: `${
+          activeTab === "debt" ? "Hutang" : "Piutang"
+        } berhasil dihapus`,
+      });
     } catch (error) {
-      console.error("Error deleting record:", error)
+      console.error("Error deleting record:", error);
       toast({
         title: "Error",
-        description: `Gagal menghapus ${activeTab === "debt" ? "hutang" : "piutang"}`,
+        description: `Gagal menghapus ${
+          activeTab === "debt" ? "hutang" : "piutang"
+        }`,
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsDeleteDrawerOpen(false)
-      setRecordToDelete(null)
+      setIsDeleteDrawerOpen(false);
+      setRecordToDelete(null);
     }
-  }
+  };
 
   const confirmPay = (id: string) => {
-    setRecordToPay(id)
-    setIsPayDrawerOpen(true)
-  }
+    setRecordToPay(id);
+    setIsPayDrawerOpen(true);
+  };
 
   const markAsPaid = async () => {
-    if (!user?.uid || !recordToPay) return
+    if (!user?.uid || !recordToPay) return;
 
     try {
       await updateDoc(doc(db, "debtCredit", recordToPay), {
         status: "paid",
-      })
+      });
 
-      fetchRecords()
+      fetchRecords();
 
       toast({
         title: "Sukses",
-        description: `${activeTab === "debt" ? "Hutang" : "Piutang"} berhasil dilunasi`,
-      })
+        description: `${
+          activeTab === "debt" ? "Hutang" : "Piutang"
+        } berhasil dilunasi`,
+      });
     } catch (error) {
-      console.error("Error updating record:", error)
+      console.error("Error updating record:", error);
       toast({
         title: "Error",
-        description: `Gagal melunasi ${activeTab === "debt" ? "hutang" : "piutang"}`,
+        description: `Gagal melunasi ${
+          activeTab === "debt" ? "hutang" : "piutang"
+        }`,
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsPayDrawerOpen(false)
-      setRecordToPay(null)
+      setIsPayDrawerOpen(false);
+      setRecordToPay(null);
     }
-  }
+  };
 
   return (
     <AuthCheck>
@@ -310,7 +352,9 @@ export default function DebtCreditPage() {
               </DrawerTrigger>
               <DrawerContent>
                 <DrawerHeader>
-                  <DrawerTitle>Tambah {activeTab === "debt" ? "Hutang" : "Piutang"}</DrawerTitle>
+                  <DrawerTitle>
+                    Tambah {activeTab === "debt" ? "Hutang" : "Piutang"}
+                  </DrawerTitle>
                 </DrawerHeader>
                 <div className="px-4">
                   <form onSubmit={handleSubmit} className="space-y-4">
@@ -318,14 +362,20 @@ export default function DebtCreditPage() {
                       <Label htmlFor="type">Tipe</Label>
                       <Select
                         value={newRecord.type}
-                        onValueChange={(value) => setNewRecord((prev) => ({ ...prev, type: value }))}
+                        onValueChange={(value) =>
+                          setNewRecord((prev) => ({ ...prev, type: value }))
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="debt">Hutang (Saya berhutang)</SelectItem>
-                          <SelectItem value="credit">Piutang (Orang berhutang ke saya)</SelectItem>
+                          <SelectItem value="debt">
+                            Hutang (Saya berhutang)
+                          </SelectItem>
+                          <SelectItem value="credit">
+                            Piutang (Orang berhutang ke saya)
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -367,7 +417,10 @@ export default function DebtCreditPage() {
                       <Label>Tanggal Jatuh Tempo</Label>
                       <Popover>
                         <PopoverTrigger asChild>
-                          <Button variant="outline" className="w-full justify-start text-left font-normal">
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start text-left font-normal"
+                          >
                             <CalendarIcon className="mr-2 h-4 w-4" />
                             {format(newRecord.dueDate, "PPP", { locale: id })}
                           </Button>
@@ -376,7 +429,13 @@ export default function DebtCreditPage() {
                           <Calendar
                             mode="single"
                             selected={newRecord.dueDate}
-                            onSelect={(date) => date && setNewRecord((prev) => ({ ...prev, dueDate: date }))}
+                            onSelect={(date) =>
+                              date &&
+                              setNewRecord((prev) => ({
+                                ...prev,
+                                dueDate: date,
+                              }))
+                            }
                             initialFocus
                           />
                         </PopoverContent>
@@ -403,7 +462,11 @@ export default function DebtCreditPage() {
             </Drawer>
           </div>
 
-          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+          <Tabs
+            value={activeTab}
+            onValueChange={handleTabChange}
+            className="w-full"
+          >
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="debt">Hutang</TabsTrigger>
               <TabsTrigger value="credit">Piutang</TabsTrigger>
@@ -422,26 +485,45 @@ export default function DebtCreditPage() {
                           <CardContent className="p-0">
                             <div className="flex items-center justify-between border-b p-3">
                               <div>
-                                <p className="font-medium">{record.description}</p>
-                                <p className="text-xs text-muted-foreground">Ke: {record.person}</p>
+                                <p className="font-medium">
+                                  {record.description}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  Ke: {record.person}
+                                </p>
                               </div>
-                              <p className="font-semibold text-red-500">{formatCurrency(record.amount)}</p>
+                              <p className="font-semibold text-red-500">
+                                {formatCurrency(record.amount)}
+                              </p>
                             </div>
                             <div className="flex items-center justify-between p-3">
                               <div>
                                 <p className="text-xs text-muted-foreground">
-                                  Jatuh tempo: {record.dueDate ? formatDate(record.dueDate) : "Tidak ada"}
+                                  Jatuh tempo:{" "}
+                                  {record.dueDate
+                                    ? formatDate(record.dueDate)
+                                    : "Tidak ada"}
                                 </p>
-                                <p className="text-xs text-muted-foreground">Dibuat: {formatDate(record.date)}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  Dibuat: {formatDate(record.date)}
+                                </p>
                               </div>
                               <div className="flex space-x-2">
                                 {record.status === "pending" ? (
                                   <>
-                                    <Button size="sm" variant="outline" onClick={() => confirmPay(record.id)}>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => confirmPay(record.id)}
+                                    >
                                       <Check className="mr-1 h-4 w-4" />
                                       Lunasi
                                     </Button>
-                                    <Button size="sm" variant="ghost" onClick={() => handleEdit(record)}>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => handleEdit(record)}
+                                    >
                                       <Edit className="h-4 w-4" />
                                     </Button>
                                   </>
@@ -458,7 +540,9 @@ export default function DebtCreditPage() {
                     </div>
                   ) : (
                     <div className="flex h-40 items-center justify-center rounded-lg border">
-                      <p className="text-center text-muted-foreground">Belum ada data hutang</p>
+                      <p className="text-center text-muted-foreground">
+                        Belum ada data hutang
+                      </p>
                     </div>
                   )}
                 </>
@@ -478,26 +562,45 @@ export default function DebtCreditPage() {
                           <CardContent className="p-0">
                             <div className="flex items-center justify-between border-b p-3">
                               <div>
-                                <p className="font-medium">{record.description}</p>
-                                <p className="text-xs text-muted-foreground">Dari: {record.person}</p>
+                                <p className="font-medium">
+                                  {record.description}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  Dari: {record.person}
+                                </p>
                               </div>
-                              <p className="font-semibold text-green-500">{formatCurrency(record.amount)}</p>
+                              <p className="font-semibold text-green-500">
+                                {formatCurrency(record.amount)}
+                              </p>
                             </div>
                             <div className="flex items-center justify-between p-3">
                               <div>
                                 <p className="text-xs text-muted-foreground">
-                                  Jatuh tempo: {record.dueDate ? formatDate(record.dueDate) : "Tidak ada"}
+                                  Jatuh tempo:{" "}
+                                  {record.dueDate
+                                    ? formatDate(record.dueDate)
+                                    : "Tidak ada"}
                                 </p>
-                                <p className="text-xs text-muted-foreground">Dibuat: {formatDate(record.date)}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  Dibuat: {formatDate(record.date)}
+                                </p>
                               </div>
                               <div className="flex space-x-2">
                                 {record.status === "pending" ? (
                                   <>
-                                    <Button size="sm" variant="outline" onClick={() => confirmPay(record.id)}>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => confirmPay(record.id)}
+                                    >
                                       <Check className="mr-1 h-4 w-4" />
                                       Terima
                                     </Button>
-                                    <Button size="sm" variant="ghost" onClick={() => handleEdit(record)}>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => handleEdit(record)}
+                                    >
                                       <Edit className="h-4 w-4" />
                                     </Button>
                                   </>
@@ -514,7 +617,9 @@ export default function DebtCreditPage() {
                     </div>
                   ) : (
                     <div className="flex h-40 items-center justify-center rounded-lg border">
-                      <p className="text-center text-muted-foreground">Belum ada data piutang</p>
+                      <p className="text-center text-muted-foreground">
+                        Belum ada data piutang
+                      </p>
                     </div>
                   )}
                 </>
@@ -527,7 +632,9 @@ export default function DebtCreditPage() {
         <Drawer open={isEditDrawerOpen} onOpenChange={setIsEditDrawerOpen}>
           <DrawerContent>
             <DrawerHeader>
-              <DrawerTitle>Edit {activeTab === "debt" ? "Hutang" : "Piutang"}</DrawerTitle>
+              <DrawerTitle>
+                Edit {activeTab === "debt" ? "Hutang" : "Piutang"}
+              </DrawerTitle>
             </DrawerHeader>
             {editingRecord && (
               <div className="px-4">
@@ -567,17 +674,26 @@ export default function DebtCreditPage() {
                     <Label>Tanggal Jatuh Tempo</Label>
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button variant="outline" className="w-full justify-start text-left font-normal">
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
                           <CalendarIcon className="mr-2 h-4 w-4" />
                           {editingRecord.dueDate &&
                           typeof editingRecord.dueDate === "object" &&
                           "toDate" in editingRecord.dueDate
-                            ? format(editingRecord.dueDate.toDate(), "PPP", { locale: id })
+                            ? format(editingRecord.dueDate.toDate(), "PPP", {
+                                locale: id,
+                              })
                             : typeof editingRecord.dueDate === "string"
-                              ? format(new Date(editingRecord.dueDate), "PPP", { locale: id })
-                              : editingRecord.dueDate instanceof Date
-                                ? format(editingRecord.dueDate, "PPP", { locale: id })
-                                : "Pilih tanggal"}
+                            ? format(new Date(editingRecord.dueDate), "PPP", {
+                                locale: id,
+                              })
+                            : editingRecord.dueDate instanceof Date
+                            ? format(editingRecord.dueDate, "PPP", {
+                                locale: id,
+                              })
+                            : "Pilih tanggal"}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0">
@@ -589,13 +705,16 @@ export default function DebtCreditPage() {
                             "toDate" in editingRecord.dueDate
                               ? editingRecord.dueDate.toDate()
                               : typeof editingRecord.dueDate === "string"
-                                ? new Date(editingRecord.dueDate)
-                                : editingRecord.dueDate instanceof Date
-                                  ? editingRecord.dueDate
-                                  : undefined
+                              ? new Date(editingRecord.dueDate)
+                              : editingRecord.dueDate instanceof Date
+                              ? editingRecord.dueDate
+                              : undefined
                           }
                           onSelect={(date) =>
-                            date && setEditingRecord((prev) => (prev ? { ...prev, dueDate: date } : null))
+                            date &&
+                            setEditingRecord((prev) =>
+                              prev ? { ...prev, dueDate: date } : null
+                            )
                           }
                           initialFocus
                         />
@@ -607,8 +726,8 @@ export default function DebtCreditPage() {
                       type="button"
                       variant="destructive"
                       onClick={() => {
-                        setIsEditDrawerOpen(false)
-                        confirmDelete(editingRecord.id)
+                        setIsEditDrawerOpen(false);
+                        confirmDelete(editingRecord.id);
                       }}
                       disabled={isSubmitting}
                     >
@@ -642,8 +761,9 @@ export default function DebtCreditPage() {
             <DrawerHeader>
               <DrawerTitle>Konfirmasi Hapus</DrawerTitle>
               <DrawerDescription>
-                Apakah Anda yakin ingin menghapus {activeTab === "debt" ? "hutang" : "piutang"} ini? Tindakan ini tidak
-                dapat dibatalkan.
+                Apakah Anda yakin ingin menghapus{" "}
+                {activeTab === "debt" ? "hutang" : "piutang"} ini? Tindakan ini
+                tidak dapat dibatalkan.
               </DrawerDescription>
             </DrawerHeader>
             <DrawerFooter className="flex-row justify-end space-x-2">
@@ -663,14 +783,17 @@ export default function DebtCreditPage() {
             <DrawerHeader>
               <DrawerTitle>Konfirmasi Pelunasan</DrawerTitle>
               <DrawerDescription>
-                Apakah Anda yakin ingin menandai {activeTab === "debt" ? "hutang" : "piutang"} ini sebagai lunas?
+                Apakah Anda yakin ingin menandai{" "}
+                {activeTab === "debt" ? "hutang" : "piutang"} ini sebagai lunas?
               </DrawerDescription>
             </DrawerHeader>
             <DrawerFooter className="flex-row justify-end space-x-2">
               <DrawerClose asChild>
                 <Button variant="outline">Batal</Button>
               </DrawerClose>
-              <Button onClick={markAsPaid}>{activeTab === "debt" ? "Lunasi Hutang" : "Terima Pembayaran"}</Button>
+              <Button onClick={markAsPaid}>
+                {activeTab === "debt" ? "Lunasi Hutang" : "Terima Pembayaran"}
+              </Button>
             </DrawerFooter>
           </DrawerContent>
         </Drawer>
@@ -678,5 +801,5 @@ export default function DebtCreditPage() {
         <BottomNav />
       </MobileContainer>
     </AuthCheck>
-  )
+  );
 }

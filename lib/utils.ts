@@ -1,10 +1,10 @@
-import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
-import { format } from "date-fns"
-import { id } from "date-fns/locale"
+import { type ClassValue, clsx } from "clsx";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 export function formatCurrency(amount: number): string {
@@ -13,22 +13,27 @@ export function formatCurrency(amount: number): string {
     currency: "IDR",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(amount)
+  }).format(amount);
 }
 
-export function formatDate(date: Date | string | { toDate: () => Date } | null | undefined): string {
-  if (!date) return "Tidak ada"
+export function formatDate(
+  date: Date | string | { toDate: () => Date } | null | undefined
+): string {
+  if (!date) return "Tidak ada";
 
-  let dateObj: Date
+  let dateObj: Date;
 
-  // Handle Firestore Timestamp objects which have a toDate() method
-  if (typeof date === "object" && "toDate" in date && typeof date.toDate === "function") {
-    dateObj = date.toDate()
+  if (
+    typeof date === "object" &&
+    "toDate" in date &&
+    typeof date.toDate === "function"
+  ) {
+    dateObj = date.toDate();
   } else if (typeof date === "string") {
-    dateObj = new Date(date)
+    dateObj = new Date(date);
   } else {
-    dateObj = date as Date
+    dateObj = date as Date;
   }
 
-  return format(dateObj, "d MMMM yyyy", { locale: id })
+  return format(dateObj, "d MMMM yyyy", { locale: id });
 }

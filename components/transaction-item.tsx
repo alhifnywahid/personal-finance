@@ -1,18 +1,22 @@
-"use client"
+"use client";
 
-import { formatCurrency, formatDate } from "@/lib/utils"
-import type { Transaction } from "@/types"
-import { ArrowDownCircle, ArrowUpCircle, Edit, Trash } from "lucide-react"
-import { Button } from "./ui/button"
+import { formatCurrency, formatDate } from "@/lib/utils";
+import type { Transaction } from "@/types";
+import { ArrowDownCircle, ArrowUpCircle, Edit, Trash } from "lucide-react";
+import { Button } from "./ui/button";
 
 interface TransactionItemProps {
-  transaction: Transaction
-  onEdit?: () => void
-  onDelete?: () => void
+  transaction: Transaction;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
-export default function TransactionItem({ transaction, onEdit, onDelete }: TransactionItemProps) {
-  const isIncome = transaction.type === "income"
+export default function TransactionItem({
+  transaction,
+  onEdit,
+  onDelete,
+}: TransactionItemProps) {
+  const isIncome = transaction.type === "income";
 
   return (
     <div className="flex flex-col rounded-lg border">
@@ -32,7 +36,11 @@ export default function TransactionItem({ transaction, onEdit, onDelete }: Trans
             </p>
           </div>
         </div>
-        <p className={`font-semibold ${isIncome ? "text-green-500" : "text-red-500"}`}>
+        <p
+          className={`font-semibold ${
+            isIncome ? "text-green-500" : "text-red-500"
+          }`}
+        >
           {isIncome ? "+" : "-"} {formatCurrency(transaction.amount)}
         </p>
       </div>
@@ -40,7 +48,12 @@ export default function TransactionItem({ transaction, onEdit, onDelete }: Trans
       {(onEdit || onDelete) && (
         <div className="flex justify-end border-t p-2">
           {onEdit && (
-            <Button variant="ghost" size="sm" onClick={onEdit} className="h-8 px-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onEdit}
+              className="h-8 px-2"
+            >
               <Edit className="h-4 w-4" />
               <span className="ml-1">Edit</span>
             </Button>
@@ -59,5 +72,5 @@ export default function TransactionItem({ transaction, onEdit, onDelete }: Trans
         </div>
       )}
     </div>
-  )
+  );
 }

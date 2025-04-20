@@ -3,7 +3,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import type React from "react";
-import "./globals.css";
+import "@/styles/globals.css";
 import PWARegister from "./pwa";
 
 const inter = Inter({ subsets: ["latin"] });
