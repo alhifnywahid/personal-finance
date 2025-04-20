@@ -1,3 +1,8 @@
+<p align="center">
+  <a href="README.md"><img src="https://img.shields.io/badge/Bahasa-Indonesia-blue?style=for-the-badge" alt="README Indonesia"></a>
+  <a href="README.en.md"><img src="https://img.shields.io/badge/Language-English-green?style=for-the-badge" alt="README English"></a>
+</p>
+
 # 💰 KeuanganKu – Aplikasi Keuangan Pribadi
 
 **KeuanganKu** adalah aplikasi web yang dirancang untuk membantu Anda mengelola keuangan pribadi dengan mudah. Dengan fitur pencatatan transaksi, pelacakan utang/piutang, dan visualisasi keuangan, Anda dapat memantau kondisi finansial Anda secara efisien.

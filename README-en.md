@@ -1,3 +1,8 @@
+<p align="center">
+  <a href="README.md"><img src="https://img.shields.io/badge/Bahasa-Indonesia-blue?style=for-the-badge" alt="README Indonesia"></a>
+  <a href="README.en.md"><img src="https://img.shields.io/badge/Language-English-green?style=for-the-badge" alt="README English"></a>
+</p>
+
 # 💰 KeuanganKu – Personal Finance App
 
 **KeuanganKu** is a web application designed to help you manage your personal finances effortlessly. With features like transaction recording, debt/receivable tracking, and financial visualization, you can monitor your financial status efficiently.
